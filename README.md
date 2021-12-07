@@ -14,6 +14,7 @@ The purpose of the CLEAR Android SDK is to provide properly provisioned partner 
 
 Currently, we only provide the SDK as a dependency through Github Package Manager. 
 
+### Signing
 When building our SDK into your project it is imperative that you use ONLY `v2` and `v3` [app signing](https://source.android.com/security/apksigning) for Android.
 
 ## Getting Started
