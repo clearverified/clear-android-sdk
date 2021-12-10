@@ -3,6 +3,16 @@ dependencyResolutionManagement {
   repositories {
     google()
     mavenCentral()
+    maven {
+      url = uri("https://maven.pkg.github.com/clearsecureidentity/clear-android-sdk")
+      credentials(HttpHeaderCredentials) {
+        name("Authorization")
+        value("Bearer <YOUR TOKEN>")
+      }
+      authentication {
+        register("header", HttpHeaderAuthentication)
+      }
+    }
     jcenter() // Warning: this repository is going to shut down soon
   }
 }
