@@ -11,8 +11,33 @@ The purpose of the CLEAR Android SDK is to provide properly provisioned partner 
 * [AndroidX](https://developer.android.com/jetpack/androidx/)
 
 ### Distribution
+We provide the SDK as a dependency through Github Package Manager to install follow these steps.
 
-Currently, we only provide the SDK as a dependency through Github Package Manager. 
+1. Create a Github [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and make sure you give read privileges for Github Packages and configure SSO
+
+2. In your project level `build.gradle` you will need to add this code block to authenticate with Github through Gradle.
+```
+buildscript {
+    google()
+    mavenCentral()
+    maven {
+      url = uri("https://maven.pkg.github.com/clearsecureidentity/clear-android-sdk")
+      credentials(HttpHeaderCredentials) {
+        name("Authorization")
+        value("Bearer <YOUR TOKEN>")
+      }
+      authentication {
+        register("header", HttpHeaderAuthentication)
+      }
+    }
+  }  
+```    
+
+3. In your app level `build.gradle` you will need to add the following line: 
+
+`implementation('com.clearme.verification.sdk:android:@latest-version')`
+
+Then sync your project with Gradle and you should see the library resolve. If you have issues with importing the library, sometimes placing the authentication code in the `settings.gradle` will do the trick just **make sure not to commit any credentials by accident to your repository**.
 
 ### Signing
 When building our SDK into your project it is imperative that you use ONLY `v2` and `v3` [app signing](https://source.android.com/security/apksigning) for Android.
