@@ -2,6 +2,7 @@
 ![minSdkVersion](https://img.shields.io/badge/minSdk-23-red.svg)
 ![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-30-green.svg)
 
+
 # CLEAR Mobile Verification SDK for Android
 
 > This is CONFIDENTIAL information intended only for verifiable partners of CLEAR
