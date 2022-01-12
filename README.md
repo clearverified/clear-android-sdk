@@ -5,8 +5,6 @@
 
 # CLEAR Mobile Verification SDK for Android
 
-> This is CONFIDENTIAL information intended only for verifiable partners of CLEAR
-
 The purpose of the CLEAR Android SDK is to provide properly provisioned partner development teams with the ability to easily integrate CLEAR’s identity verification technology into their own mobile applications. The SDK takes care of both the UI as well as the underlying remote service calls to securely verify a user's identity.
 
 ### Support Requirements
