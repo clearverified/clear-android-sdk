@@ -19,7 +19,7 @@ We provide the SDK as a dependency through Github Package Manager to install fol
 1. Create a Github [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and make sure you give read privileges for Github Packages and configure SSO
 
 2. In your project level `build.gradle` you will need to add this code block to authenticate with Github through Gradle.
-```
+```kotlin
 buildscript {
     google()
     mavenCentral()
@@ -38,7 +38,9 @@ buildscript {
 
 3. In your app level `build.gradle` you will need to add the following line: 
 
-`implementation('com.clearme.verification.sdk:android:@latest-version')`
+```kotlin
+implementation('com.clearme.verification.sdk:android:@latest-version')
+```
 
 Then sync your project with Gradle and you should see the library resolve. If you have issues with importing the library, sometimes placing the authentication code in the `settings.gradle` will do the trick just **make sure not to commit any credentials by accident to your repository**.
 
@@ -129,7 +131,26 @@ verificationView.setUseCase(VerificationUseCase.VERIFY_WITH);
 
 In order to start a verification flow, use `VerificationView`'s `OnButtonClickListener`:
 
-### Kotlin
+### Kotlin #1
+
+```kotlin
+ private val activityResultLauncher = registerForActivityResult(
+    ActivityResultContracts.StartActivityForResult(), this::analyzeActivityResult
+  )
+  
+  val verifyButton = binding.verificationView
+    verifyButton.apply {
+      useCase = VERIFY_WITH
+      setOnButtonClickListener { launchClearVerification() }
+    }
+  
+    private fun launchClearVerification() {
+    val verificationIntent = ClearSdk.createIdentityVerificationIntent(this, IdentifierType.Email())
+    activityResultLauncher.launch(verificationIntent)
+  }
+```  
+  
+### Kotlin #2
 
 ```kotlin
 companion object {
@@ -179,7 +200,21 @@ The following options are available to you:
 
 The Clear Android SDK relies on the Android framework's trusty `onActivityResult` callback to provide results back to your app. In order to wire up the callback, use the following code snippet:
 
-### Kotlin
+### Kotlin #1
+```kotlin
+private fun analyzeActivityResult(activityResult: ActivityResult) {
+    when (activityResult.resultCode) {
+      RESULT_OK ->  {
+        // Manage Success State
+      }
+      RESULT_CANCELED -> {}
+      RESULT_FAILED_ASSURANCE -> {}
+      RESULT_ACCOUNT_LOCKED -> {}
+    }
+  }
+ ```
+
+### Kotlin #2
 
 ```kotlin
 override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
