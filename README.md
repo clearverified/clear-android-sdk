@@ -1,7 +1,7 @@
 
 ![minSdkVersion](https://img.shields.io/badge/minSdk-23-blue.svg)
 ![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-30-brightgreen.svg)
-![Release](https://img.shields.io/badge/Library_Version_0.9.20-blueviolet.svg)
+![Release](https://img.shields.io/badge/Library%20Version-0.9.20-blueviolet)
 
 
 # CLEAR Mobile Verification SDK for Android
