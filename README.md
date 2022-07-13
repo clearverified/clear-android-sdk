@@ -1,7 +1,7 @@
 
 ![minSdkVersion](https://img.shields.io/badge/minSdk-23-blue.svg)
 ![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-30-brightgreen.svg)
-![Release](https://img.shields.io/badge/Library%20Version-0.9.30-blueviolet)
+![Release](https://img.shields.io/badge/Library%20Version-0.9.40-blueviolet)
 
 
 # CLEAR Mobile Verification SDK for Android
@@ -10,8 +10,9 @@ The purpose of the CLEAR Android SDK is to provide properly provisioned partner 
 
 ### Support Requirements
 
+* Kotlin 1.6.10
 * Android 6.0 (API level 23) and above
-* [Android Gradle Plugin](https://developer.android.com/studio/releases/gradle-plugin) 4.1.2 and above
+* [Android Gradle Plugin](https://developer.android.com/studio/releases/gradle-plugin) 7.3.3 and above
 * [AndroidX](https://developer.android.com/jetpack/androidx/)
 
 ### Distribution
@@ -183,6 +184,60 @@ Intent intent = ClearSdk.createIdentityVerificationIntent(this, identifierType);
 verificationView.setOnButtonClickListener(() -> startActivityForResult(intent, VERIFICATION_REQUEST_CODE));
 ```
 
+## 4/ Jetpack Compose
+
+Clear SDK also has Jetpack Compose support. The corresponding button view has the following format (the view internally has `fillMaxWidth` modifier):
+
+```kotlin
+VerificationView(
+   modifier: Modifier = Modifier,
+   useCase: VerificationUseCase,
+   onButtonClick: () -> Unit
+)
+```
+
+Its use is pretty simple - place a view, provide it with the useCase and the button click handler lambda:
+
+```kotlin
+import com.clearme.verification.sdk.util.extensions.asActivity
+
+companion object {
+   private const val VERIFICATION_REQUEST_CODE = 123
+}
+
+...
+@Composable
+fun MyComposableView(identifierType: IdentifierType) {
+   ...
+   VerificationView(useCase = VerificationUseCase.VERIFY_WITH) {
+      val context = LocalContext.current
+      val verificationIntent = ClearSdk.createIdentityVerificationIntent(
+         context = context,
+         identifierType = identifierType,
+         composable = true
+      )
+      context.asActivity()?.startActivityForResult(verificationIntent, VERIFICATION_REQUEST_CODE)
+   }
+}
+```
+
+Besides that, composable flow can also be called from a conventional context:
+
+```kotlin
+val verificationView = rootView.findViewById(R.id.verification_view)
+verificationView.useCase = VerificationUseCase.VERIFY_WITH
+
+val verificationIntent = ClearSdk.createIdentityVerificationIntent(
+   context: Context,
+   identifierType: IdentifierType,
+   composable: Boolean
+)
+
+verificationView.setOnButtonClickListener {
+   startActivityForResult(verificationIntent, VERIFICATION_REQUEST_CODE)
+}
+```
+
 ### Note
 
 `createIdentityVerificationIntent`'s `identifierType` is used to configure what data you want to pass into the SDK. The parameter also allows you to configure what flow you want the SDK to function in.
@@ -197,7 +252,7 @@ The following options are available to you:
 | `Email(email = "hi@clearme.com", flowType = FlowType.SUPPRESSED)` | Starts the SDK directly on the Face Capture screen with the email set to "hi@clearme.com" in the background                                 | The email address you pass in here should be a valid email address. If the email address is invalid, the SDK will throw the `EmailValidationException` which you can choose to handle however you like. |
 | `MemberAsid(asid = "ASID")`                                       | Starts the SDK directly on the Face Capture screen and uses a returning user's Member ASID for verification instead of their email address. | Used to directly pass-in a previously stored Member ASID into the SDK for faster verification.                                                                                                          |
 
-## 4/ Handle the Result of an Identity Verification Session
+## 5/ Handle the Result of an Identity Verification Session
 
 The Clear Android SDK relies on the Android framework's trusty `onActivityResult` callback to provide results back to your app. In order to wire up the callback, use the following code snippet:
 
