@@ -1,342 +1,206 @@
 
-![minSdkVersion](https://img.shields.io/badge/minSdk-23-blue.svg)
-![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-30-brightgreen.svg)
+![minSdkVersion](https://img.shields.io/badge/minSdk-21-blue.svg)
+![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-32-brightgreen.svg)
 ![Release](https://img.shields.io/badge/Library%20Version-1.0.0-blueviolet)
 
+# CLEAR SDK for Android
 
-# CLEAR Mobile Verification SDK for Android
+> This is CONFIDENTIAL information intended only for verifiable partners of CLEAR
 
-The purpose of the CLEAR Android SDK is to provide properly provisioned partner development teams with the ability to easily integrate CLEAR’s identity verification technology into their own mobile applications. The SDK takes care of both the UI as well as the underlying remote service calls to securely verify a user's identity.
+The CLEAR Android SDK provides partner development teams with the ability to easily integrate CLEAR’s identity verification technology into their own mobile applications. 
 
-### Support Requirements
+## Requirements
 
-* Kotlin 1.6.10
-* Android 6.0 (API level 23) and above
-* [Android Gradle Plugin](https://developer.android.com/studio/releases/gradle-plugin) 7.3.3 and above
-* [AndroidX](https://developer.android.com/jetpack/androidx/)
-
-### Distribution
-We provide the SDK as a dependency through Github Package Manager to install follow these steps.
-
-1. Create a Github [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and make sure you give read privileges for Github Packages and configure SSO
-
-2. In your project level `build.gradle` you will need to add this code block to authenticate with Github through Gradle.
-```kotlin
-buildscript {
-    google()
-    mavenCentral()
-    maven {
-      url = uri("https://maven.pkg.github.com/clearsecureidentity/clear-android-sdk")
-      credentials(HttpHeaderCredentials) {
-        name("Authorization")
-        value("Bearer <YOUR TOKEN>")
-      }
-      authentication {
-        register("header", HttpHeaderAuthentication)
-      }
-    }
-  }  
-```    
-
-3. In your app level `build.gradle` you will need to add the following line: 
-
-```kotlin
-implementation('com.clearme.verification.sdk:android:@latest-version')
-```
-
-Then sync your project with Gradle and you should see the library resolve. If you have issues with importing the library, sometimes placing the authentication code in the `settings.gradle` will do the trick just **make sure not to commit any credentials by accident to your repository**.
-
-### Signing
-When building our SDK into your project it is imperative that you use ONLY `v2` and `v3` [app signing](https://source.android.com/security/apksigning) for Android.
+* Android 5.0 (API level 21) and above
+* Android Browser API ([androidx.browser:browser:1.4.0](https://developer.android.com/jetpack/androidx/releases/browser)) (Transitive dependency)
 
 ## Getting Started
 
-Before starting, please be sure that you have access to the following credentials:
+To set up a partnership, reach out to developersupport@clearme.com. 
+
+Before starting, please be sure that you have access to the following configuration values:
 
 1. Client ID (provided by CLEAR during onboarding)
-2. API Key (provided by CLEAR during onboarding)
-2. Device Verification API Key (provided by Google for your app's package identifier)
-    - To get this, follow steps 1-5 [here](https://developer.android.com/training/safetynet/attestation#add-api-key)
+2. Scope (provided by CLEAR during onboarding)
+3. RedirectURI (see instructions below)
 
-## 1/ Initialize the SDK
+### Choosing your Redirect URI
 
-In your app's `Application` class, you should first initialize the SDK with the following parameters:
+The RedirectURI is a "deep link" to your application that will be used to supply the application with an authorization code after the completion of the CLEAR member verification session. As part of onboarding, you should provide CLEAR with a redirect URI for your application(s).
 
-### Kotlin
+There are two approaches you can use when implementing a redirect URI: A custom URL scheme or Android App Links.
+
+<details>
+  <summary>Using a Custom Scheme</summary>
+
+The most straight forward approach is to define a redirect URI using a [custom scheme](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_is_a_URL#scheme). We recommend using your application's `applicationId` as the scheme and for the domain name using "auth" (eg. `com.example.yourapp://auth`). Note that it's important to use a unique URI scheme for your application to prevent the possibility of a "disambiguation dialog" from appearing in the case where two applications installed on the device happen to use the same scheme.
+
+</details><br/>
+
+<details>
+  <summary>Using an Android App Link</summary>
+
+[App links](https://developer.android.com/training/app-links) are supported, but require additional set up that is out of scope for this document. Note that if you do choose to use an app link, it is recommended that your application have a minimum API level of 23. 
+
+</details><br/>
+
+Whether or not you are using a custom scheme or App Link, it's important that you pre-register your application's URI with CLEAR during onboarding before proceeding. 
+
+## Usage
+
+After establishing your partner configuration during onboarding, you can integrate the SDK into your Android Application with the following 3 steps.
+
+### 1. Install the SDK
+
+In your application's `gradle.build` file, make the following changes:
+
+* Add the CLEAR maven repository 
+    ```
+    repositories {
+        maven { url 'https://raw.githubusercontent.com/clearsecureidentity/clear-android-sdk/master/maven/' }
+    }
+    ```
+* Add `manifestPlaceholders` to `defaultConfig`
+    ```groovy
+    defaultConfig {
+        applicationId "com.example.yourapp"
+        minSdk 21
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+
+        manifestPlaceholders = [clearRedirectUriHost: "auth", clearRedirectUriScheme: applicationId]
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    ```
+    The `clearRedirectUriHost` and `clearRedirectUriScheme` values are taken from the RedirectURI that was pre-registered during onboarding. In this example we are using the recommended values of "auth" and `applicationId` for the domain and scheme but these values may vary depending on your partner configuration.
+* Add a dependency to the current version of the CLEAR SDK
+    ```
+    dependencies {
+      implementation('com.clearme.sdk:clearmesdk:1.0.0')
+    }
+    ```
+
+
+### 2. Initialize the SDK
+
+Before using the SDK in your application, you will need to initialize it with the following parameters:
 
 ```kotlin
-ClearSdk.initialize(
-    application = this,
-    clientId = "CLIENT_ID",
-    apiKey = "API_KEY",
-    deviceVerificationKey = "API_KEY",
-    environment = ClearEnvironment.INTEGRATION
+
+import com.clearme.sdk.CLEAR
+import com.clearme.sdk.CLEAREnvironment.*
+
+CLEAR.initialize(
+    clientId = "00000000-00000000-00000000-00000000",     // Your partner client id, provided during onboarding
+    environment = Production,                             // `Production` or `Integration`
+    redirectURI = "your.custom.scheme://auth",            // Your redirect URI (See above for description)
+    scope = "SCOPE"                                       // Your partner scope, provided during onboarding
 )
+
 ```
 
-### Java
+* **clientId** and **scope**: These values are provided by CLEAR during onboarding.
+ * **environment**: The environment parameter declares the remote environment that will be used. The two possible options are `Integration`, which should be used for development and debugging purposes, and `Production` which should only be used for public releases of your application. It is recommended that you assign these environments to correspond to your appropriate build configurations.
+ * **redirectURI**: This is a redirect URI that corresponds to a pre-registered value that was defined during onboarding. See "Choosing your RedirectURI" above for details.
 
-```java
-ClearSdk.initialize(
-    this,
-    "CLIENT_ID",
-    "API_KEY",
-    "DEVICE_VERIFICATION_API_KEY",
-    ClearEnvironment.INTEGRATION
-);
-```
 
-The first parameter should almost always refer to your existing `Application` class, while the next three are values that are either provided to you by CLEAR during onboarding, or as a result of properly configuring your SafetyNet device attestation in the Google Console.
+### 3. Integrate the SDK in your Application code
 
-Finally, the environment parameter declares the remote environment that you would like to assign to your build instance. The two possible options are `ClearEnvironment.INTEGRATION`, which should be used for development and debugging purposes, and `ClearEnvironment.PRODUCTION` which should only be used for public releases of your application. It is highly recommended that you assign these environments to correspond to your appropriate build configurations.
+Once initialized, the next step is to place the `VerifyWithClearButton` on a suitable screen within your app.
 
-## 2/ Place a VerificationView Button in Your Layout
-
-Once initialized, the next step is to place the `VerificationView` on a suitable screen within your app.
-
-### Layout
+Example layout:
 
 ```xml
-<com.clearme.verification.sdk.ui.util.views.VerificationView
-    android:id="@+id/verification_view"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    tools:context=".MainActivity">
+
+    <com.clearme.sdk.ui.VerifyWithClearButton
+        android:id="@+id/clearbtn"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/clearme_btn_height_default"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        app:layout_constraintWidth_max="@dimen/clearme_btn_width_default"
+        app:layout_constraintWidth_min="@dimen/clearme_btn_width_min"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
 ```
 
-You will also need to assign a use case to the view, which will declare the intended verification session type you wish to perform. It is possible to place multiple instances within your app, each with a different purpose defined by its corresponding use case.
+This will produce a button that is the default size of 327 x 56 dpi. Note that a smaller size button can be configured by using the dimensions `@dimen/clearme_btn_width_small` and `@dimen/clearme_btn_height_small` (236 x 40 dpi). Using a `ConstraintLayout` layout as demonstrated above is the perferred approach but if you require an alternative button size or layout, you may use custom values that align with your design.
 
-### View (Activity / Fragment)
+Once the button has been included in your layout, the `setOnButtonClickListener` should be wired up to the `CLEAR.verify` method. 
 
-#### Kotlin
-
-```kotlin
-val verificationView = rootView.findViewById(R.id.verification_view)
-verificationView.useCase = VerificationUseCase.VERIFY_WITH
-```
-
-#### Java
-
-```java
-VerificationView verificationView = findViewById(R.id.verification_view);
-verificationView.setUseCase(VerificationUseCase.VERIFY_WITH);
-```
-
-| Use Case      | Purpose                                               |
-|---------------|-------------------------------------------------------|
-| `VERIFY_WITH` | Member identity verification and data sharing consent |
-| `SIGNUP_WITH` | Partner authorization for account creation            |
-| `LOGIN_WITH`  | Partner authorization for login                       |
-| `ACCESS_WITH` | Venue and event admission using CLEAR                 |
-| `PAY_WITH`    | Pay using the card on file with CLEAR                 |
-
-## 3/ Handle Button Interaction to Begin a Session
-
-In order to start a verification flow, use `VerificationView`'s `OnButtonClickListener`:
-
-### Kotlin #1
+A full kotlin implementation of the integration from a standalone activity is shown in the example below:
 
 ```kotlin
- private val activityResultLauncher = registerForActivityResult(
-    ActivityResultContracts.StartActivityForResult(), this::analyzeActivityResult
-  )
-  
-  val verifyButton = binding.verificationView
-    verifyButton.apply {
-      useCase = VERIFY_WITH
-      setOnButtonClickListener { launchClearVerification() }
-    }
-  
-    private fun launchClearVerification() {
-    val verificationIntent = ClearSdk.createIdentityVerificationIntent(this, IdentifierType.Email())
-    activityResultLauncher.launch(verificationIntent)
-  }
-```  
-  
-### Kotlin #2
+import android.os.Bundle
+import android.util.Log
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import com.clearme.sdk.CLEAR
+import com.clearme.sdk.CLEAR.Callback
+import com.clearme.sdk.CLEAR.ErrorInfo
+import com.clearme.sdk.CLEAR.VerificationResult
+import com.clearme.sdk.CLEAR.VerificationResult.Cancelled
+import com.clearme.sdk.CLEAR.VerificationResult.Completed
+import com.clearme.sdk.CLEAR.VerificationResult.Failure
+import com.clearme.sdk.CLEAREnvironment.Integration
+import com.clearme.sdk.sample.databinding.ActivityMainBinding
 
-```kotlin
-companion object {
-    private const val VERIFICATION_REQUEST_CODE = 123
-}
+class MainActivity : AppCompatActivity() {
 
-...
+  private lateinit var binding: ActivityMainBinding
 
-val verificationIntent = ClearSdk.createIdentityVerificationIntent(
-    context: Context,
-    identifierType: IdentifierType
-)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-verificationView.setOnButtonClickListener {
-    startActivityForResult(verificationIntent, VERIFICATION_REQUEST_CODE)
-}
-```
+    // Typically this would be done in your app initialization but can be anywhere in your code as long is it happens before `verify` is called.
+    CLEAR.initialize(
+      clientId = "your-client-id-here",
+      environment = Integration,
+      redirectURI = "com.example.app://auth",
+      scope = "your-scope-here"
+    )
 
-### Java
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
-```java
-private final int VERIFICATION_REQUEST_CODE = 123;
+    binding.clearbtn.setOnButtonClickListener {
+      CLEAR.verify(this, object : Callback {
+        override fun onComplete(result: VerificationResult) {
 
-...
+          when (result) {
+            Cancelled -> Unit // Typically you will not need to perform any action on cancel but need to reset UI state 
+            is Completed -> sendAuthCodeToBackend(result.authorizationCode, binding.clearbtn)
+            is Failure -> logError(result.info)
+          }
 
-IdentifierType identifierType = new IdentifierType.Email();
-Intent intent = ClearSdk.createIdentityVerificationIntent(this, identifierType);
-
-verificationView.setOnButtonClickListener(() -> startActivityForResult(intent, VERIFICATION_REQUEST_CODE));
-```
-
-## 4/ Jetpack Compose
-
-Clear SDK also has Jetpack Compose support. The corresponding button view has the following format (the view internally has `fillMaxWidth` modifier):
-
-```kotlin
-VerificationView(
-   modifier: Modifier = Modifier,
-   useCase: VerificationUseCase,
-   onButtonClick: () -> Unit
-)
-```
-
-Its use is pretty simple - place a view, provide it with the useCase and the button click handler lambda:
-
-```kotlin
-import com.clearme.verification.sdk.util.extensions.asActivity
-
-companion object {
-   private const val VERIFICATION_REQUEST_CODE = 123
-}
-
-...
-@Composable
-fun MyComposableView(identifierType: IdentifierType) {
-   ...
-   VerificationView(useCase = VerificationUseCase.VERIFY_WITH) {
-      val context = LocalContext.current
-      val verificationIntent = ClearSdk.createIdentityVerificationIntent(
-         context = context,
-         identifierType = identifierType,
-         composable = true
-      )
-      context.asActivity()?.startActivityForResult(verificationIntent, VERIFICATION_REQUEST_CODE)
-   }
-}
-```
-
-Besides that, composable flow can also be called from a conventional context:
-
-```kotlin
-val verificationView = rootView.findViewById(R.id.verification_view)
-verificationView.useCase = VerificationUseCase.VERIFY_WITH
-
-val verificationIntent = ClearSdk.createIdentityVerificationIntent(
-   context: Context,
-   identifierType: IdentifierType,
-   composable: Boolean
-)
-
-verificationView.setOnButtonClickListener {
-   startActivityForResult(verificationIntent, VERIFICATION_REQUEST_CODE)
-}
-```
-
-### Note
-
-`createIdentityVerificationIntent`'s `identifierType` is used to configure what data you want to pass into the SDK. The parameter also allows you to configure what flow you want the SDK to function in.
-
-The following options are available to you:
-
-| IdentifierType.*                                                  | SDK Flow                                                                                                                                    | Notes                                                                                                                                                                                                   |
-|-------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Email()`                                                         | Starts the SDK on the Email Capture screen with an empty email field                                                                        | -                                                                                                                                                                                                       |
-| `Email(email = "hi@clearme.com")`                                 | Starts the SDK on the Email Capture screen with the email field pre-filled with "hi@clearme.com"                                            | -                                                                                                                                                                                                       |
-| `Email(email = "hi@clearme.com", flowType = FlowType.STATIC)`     | Starts the SDK on the Email Capture screen with the email field pre-filled and locked with "hi@clearme.com"                                 | The email address you pass in here should be a valid email address. If the email address is invalid, the SDK will throw the `EmailValidationException` which you can choose to handle however you like. |
-| `Email(email = "hi@clearme.com", flowType = FlowType.SUPPRESSED)` | Starts the SDK directly on the Face Capture screen with the email set to "hi@clearme.com" in the background                                 | The email address you pass in here should be a valid email address. If the email address is invalid, the SDK will throw the `EmailValidationException` which you can choose to handle however you like. |
-| `MemberAsid(asid = "ASID")`                                       | Starts the SDK directly on the Face Capture screen and uses a returning user's Member ASID for verification instead of their email address. | Used to directly pass-in a previously stored Member ASID into the SDK for faster verification.                                                                                                          |
-
-## 5/ Handle the Result of an Identity Verification Session
-
-The Clear Android SDK relies on the Android framework's trusty `onActivityResult` callback to provide results back to your app. In order to wire up the callback, use the following code snippet:
-
-### Kotlin #1
-```kotlin
-private fun analyzeActivityResult(activityResult: ActivityResult) {
-    when (activityResult.resultCode) {
-      RESULT_OK ->  {
-        // Manage Success State
-      }
-      RESULT_CANCELED -> {}
-      RESULT_FAILED_ASSURANCE -> {}
-      RESULT_ACCOUNT_LOCKED -> {}
-    }
-  }
- ```
-
-### Kotlin #2
-
-```kotlin
-override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-    when (requestCode) {
-        VERIFICATION_REQUEST_CODE -> {
-            when (resultCode) {
-                RESULT_OK -> {
-                    val verificationResult = data?.getParcelableExtra<VerificationResult>(ClearSdk.EXTRA_VERIFICATION_RESULT)
-                }
-                RESULT_CANCELED -> {}
-                RESULT_ACCOUNT_LOCKED -> {}
-                RESULT_FAILED_ASSURANCE -> {}
-            }
         }
+      })
     }
+  }
+
+  private fun logError(info: ErrorInfo) {
+    // Session ID and Loggable reason should be logged and may be used for triage with CLEAR
+    Log.e("CLEARSDK", "Error from sdk with reason ${info.loggableReason} sessionId: ${info.sessionId}")
+  }
+
+  private fun sendAuthCodeToBackend(authorizationCode: String, view: View) {
+    // Fill in with your backend end integration
+  }
 }
-```
 
-### Java
-
-```java
-@Override
-protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    switch (requestCode) {
-        case RESULT_OK:
-            VerificationResult verificationResult = data.getParcelableExtra(ClearSdk.EXTRA_VERIFICATION_RESULT);
-            break;
-        case RESULT_CANCELED:
-            break;
-        case ClearSdk.RESULT_ACCOUNT_LOCKED:
-            break;
-        case ClearSdk.RESULT_FAILED_ASSURANCE:
-            break;
-    }
-}
-```
-
-| Result Code | Description |
-| ------- | --------------------- |
-| `RESULT_OK`  | Successful verification. SDK returns back a Member Verification Token that is accessible as part of the returned `Intent` object.     |
-| `RESULT_CANCELED`  | Verification process not completed. User abandoned the SDK.       |
-| `RESULT_ACCOUNT_LOCKED`  | Unsuccessful verification due to user's account being locked.     |
-| `RESULT_FAILED_ASSURANCE`  | Unsuccessful verification due to user failing to provide consent to share data.      |
-
-On `RESULT_OK`, you receive back a `VerificationResult` object which can you used further to communicate with backend services on your end.
-
-### Kotlin
-
-```kotlin
-// Code that can be exchanged for an access token
-verificationResult.authCode
-
-// App scoped member identifier
-verificationResult.memberAsid
-```
-
-### Java
-
-```java
-// Code that can be exchanged for an access token
-verificationResult.getAuthCode()
-
-// App scoped member identifier
-verificationResult.getMemberAsid()
 ```
 
 
