@@ -77,7 +77,7 @@ In your application's `gradle.build` file, make the following changes:
 * Add a dependency to the current version of the CLEAR SDK
     ```
     dependencies {
-      implementation('com.clearme.sdk:clearmesdk:1.0.0')
+      implementation('com.clearme.sdk:clearsdk:1.0.0')
     }
     ```
 
