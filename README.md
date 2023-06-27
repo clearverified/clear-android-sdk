@@ -5,9 +5,7 @@
 
 # CLEAR SDK for Android
 
-> This is CONFIDENTIAL information intended only for verifiable partners of CLEAR
-
-The CLEAR Android SDK provides partner development teams with the ability to easily integrate CLEAR’s identity verification technology into their own mobile applications. 
+Bring the power of CLEAR's web verification service to your Android application!
 
 ## Requirements
 
