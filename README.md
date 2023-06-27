@@ -5,7 +5,7 @@
 
 # CLEAR SDK for Android
 
-Bring the power of CLEAR's web verification service to your iOS application!
+Bring the power of CLEAR's web verification service to your Android application!
 
 ## Requirements
 
