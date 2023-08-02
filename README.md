@@ -75,7 +75,7 @@ In your application's `gradle.build` file, make the following changes:
 * Add a dependency to the current version of the CLEAR SDK
     ```
     dependencies {
-      implementation('com.clearme.sdk:clearsdk:1.0.0')
+      implementation('com.clearme.sdk:clearsdk:1.0.1')
     }
     ```
 
@@ -93,7 +93,8 @@ CLEAR.initialize(
     clientId = "00000000-00000000-00000000-00000000",     // Your partner client id, provided during onboarding
     environment = Production,                             // `Production` or `Integration`
     redirectURI = "your.custom.scheme://auth",            // Your redirect URI (See above for description)
-    scope = "SCOPE"                                       // Your partner scope, provided during onboarding
+    scope = "SCOPE",                                      // Your partner scope, provided during onboarding
+    loginHint = "sampleUser@email.com"                    // An optional user identifier (email or phone)
 )
 
 ```
@@ -168,7 +169,8 @@ class MainActivity : AppCompatActivity() {
       clientId = "your-client-id-here",
       environment = Integration,
       redirectURI = "com.example.app://auth",
-      scope = "your-scope-here"
+      scope = "your-scope-here",
+      loginHint = "user-identifier-here"
     )
 
     binding = ActivityMainBinding.inflate(layoutInflater)
