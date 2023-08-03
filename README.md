@@ -1,7 +1,7 @@
 
 ![minSdkVersion](https://img.shields.io/badge/minSdk-21-blue.svg)
 ![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-32-brightgreen.svg)
-![Release](https://img.shields.io/badge/Library%20Version-1.0.0-blueviolet)
+![Release](https://img.shields.io/badge/Library%20Version-1.0.1-blueviolet)
 
 # CLEAR SDK for Android
 
@@ -55,7 +55,7 @@ In your application's `gradle.build` file, make the following changes:
 * Add the CLEAR maven repository 
     ```
     repositories {
-        maven { url 'https://raw.githubusercontent.com/clearsecureidentity/clear-android-sdk/master/maven/' }
+        maven { url 'https://raw.githubusercontent.com/clearverified/clear-android-sdk/master/maven/' }
     }
     ```
 * Add `manifestPlaceholders` to `defaultConfig`
@@ -75,7 +75,7 @@ In your application's `gradle.build` file, make the following changes:
 * Add a dependency to the current version of the CLEAR SDK
     ```
     dependencies {
-      implementation('com.clearme.sdk:clearsdk:1.0.0')
+      implementation('com.clearme.sdk:clearsdk:1.0.1')
     }
     ```
 
@@ -93,7 +93,8 @@ CLEAR.initialize(
     clientId = "00000000-00000000-00000000-00000000",     // Your partner client id, provided during onboarding
     environment = Production,                             // `Production` or `Integration`
     redirectURI = "your.custom.scheme://auth",            // Your redirect URI (See above for description)
-    scope = "SCOPE"                                       // Your partner scope, provided during onboarding
+    scope = "SCOPE",                                      // Your partner scope, provided during onboarding
+    loginHint = "user@email.com"                          // Optional user identifier (email or phone)                              
 )
 
 ```
@@ -168,7 +169,8 @@ class MainActivity : AppCompatActivity() {
       clientId = "your-client-id-here",
       environment = Integration,
       redirectURI = "com.example.app://auth",
-      scope = "your-scope-here"
+      scope = "your-scope-here",
+      loginHint = "+5554844263" // optional
     )
 
     binding = ActivityMainBinding.inflate(layoutInflater)
