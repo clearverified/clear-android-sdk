@@ -1,7 +1,7 @@
 
 ![minSdkVersion](https://img.shields.io/badge/minSdk-21-blue.svg)
 ![compileSdkVersion](https://img.shields.io/badge/compileSdkVersion-32-brightgreen.svg)
-![Release](https://img.shields.io/badge/Library%20Version-1.0.0-blueviolet)
+![Release](https://img.shields.io/badge/Library%20Version-1.0.1-blueviolet)
 
 # CLEAR SDK for Android
 
@@ -55,7 +55,7 @@ In your application's `gradle.build` file, make the following changes:
 * Add the CLEAR maven repository 
     ```
     repositories {
-        maven { url 'https://raw.githubusercontent.com/clearsecureidentity/clear-android-sdk/master/maven/' }
+        maven { url 'https://raw.githubusercontent.com/clearverified/clear-android-sdk/master/maven/' }
     }
     ```
 * Add `manifestPlaceholders` to `defaultConfig`

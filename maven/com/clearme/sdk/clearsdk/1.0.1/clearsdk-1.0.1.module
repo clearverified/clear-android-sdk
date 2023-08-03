@@ -1,0 +1,104 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.clearme.sdk",
+    "module": "clearsdk",
+    "version": "1.0.1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.3.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.7.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "clearsdk-1.0.1.aar",
+          "url": "clearsdk-1.0.1.aar",
+          "size": 146870,
+          "sha512": "6c4253a8eab25888a4b8c4829d5f68e12b71f70cfc7915bfbd3ca4891c11df84ca3dc3b0b3557de46f4fa2060ce10268a190edda061784f5f1236e1c22026e8d",
+          "sha256": "2555462a4d6f7c004759168efc9999f3d0ec0cb193f5a8c04e0cfdc1424c1349",
+          "sha1": "ed645b45b3f38c6d695decc95c2389ab79ba0aaa",
+          "md5": "960e5e9a42bb617de3ea32639fde22c8"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.7.10"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core-ktx",
+          "version": {
+            "requires": "1.7.0"
+          }
+        },
+        {
+          "group": "androidx.appcompat",
+          "module": "appcompat",
+          "version": {
+            "requires": "1.4.2"
+          }
+        },
+        {
+          "group": "com.google.android.material",
+          "module": "material",
+          "version": {
+            "requires": "1.6.1"
+          }
+        },
+        {
+          "group": "androidx.browser",
+          "module": "browser",
+          "version": {
+            "requires": "1.4.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "clearsdk-1.0.1.aar",
+          "url": "clearsdk-1.0.1.aar",
+          "size": 146870,
+          "sha512": "6c4253a8eab25888a4b8c4829d5f68e12b71f70cfc7915bfbd3ca4891c11df84ca3dc3b0b3557de46f4fa2060ce10268a190edda061784f5f1236e1c22026e8d",
+          "sha256": "2555462a4d6f7c004759168efc9999f3d0ec0cb193f5a8c04e0cfdc1424c1349",
+          "sha1": "ed645b45b3f38c6d695decc95c2389ab79ba0aaa",
+          "md5": "960e5e9a42bb617de3ea32639fde22c8"
+        }
+      ]
+    }
+  ]
+}
