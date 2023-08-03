@@ -94,7 +94,7 @@ CLEAR.initialize(
     environment = Production,                             // `Production` or `Integration`
     redirectURI = "your.custom.scheme://auth",            // Your redirect URI (See above for description)
     scope = "SCOPE",                                      // Your partner scope, provided during onboarding
-    loginHint = "user@email.com"                          // Option user identifier (email or phone)                              
+    loginHint = "user@email.com"                          // Optional user identifier (email or phone)                              
 )
 
 ```
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
       environment = Integration,
       redirectURI = "com.example.app://auth",
       scope = "your-scope-here",
-      loginHint = "sample-email@gmail.com" // optional
+      loginHint = "+5554844263" // optional
     )
 
     binding = ActivityMainBinding.inflate(layoutInflater)
