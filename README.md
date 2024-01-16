@@ -96,6 +96,7 @@ CLEAR.initialize(
     redirectURI = "your.custom.scheme://auth",            // Your redirect URI (See above for description)
     scope = "SCOPE",                                      // Your partner scope, provided during onboarding
     loginHint = "sampleUser@email.com"                    // An optional user identifier (email or phone)
+    forgetMember = true                                   // An option boolean, indicating whether to automatically purge a user after data sharing. (not available in production)
 )
 
 ```
@@ -170,7 +171,8 @@ class MainActivity : AppCompatActivity() {
       environment = Integration,
       redirectURI = "com.example.app://auth",
       scope = "your-scope-here",
-      loginHint = "user-identifier-here"
+      loginHint = "user-identifier-here",
+      forgetMember = true
     )
 
     binding = ActivityMainBinding.inflate(layoutInflater)
